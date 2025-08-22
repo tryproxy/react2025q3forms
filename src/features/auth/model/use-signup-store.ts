@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { SignupData } from './signup.schema';
 
-type Entry = SignupData & { mode: 'vanilla' | 'rhf' };
+type Entry = SignupData & { mode: 'uncontrolled' | 'controlled' };
 
 interface SignupState {
   entries: Entry[];

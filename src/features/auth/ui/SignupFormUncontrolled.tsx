@@ -6,7 +6,7 @@ import { useSignupStore } from '../model/use-signup-store';
 
 type Errors = Partial<Record<keyof SignupData, string>>;
 
-export function SignupForm() {
+export function SignupFofmUncontrolled() {
   const [errors, setErrors] = useState<Errors>({});
   const addEntry = useSignupStore((state) => state.addEntry);
   const entries = useSignupStore((state) => state.entries);
@@ -16,6 +16,7 @@ export function SignupForm() {
     setErrors({});
 
     const form = new FormData(e.currentTarget);
+
     const { data, error } = signupSchema.safeParse({
       name: form.get('name') ?? '',
       age: form.get('age') ?? '',
@@ -31,9 +32,9 @@ export function SignupForm() {
       return;
     }
 
-    addEntry({ ...data, mode: 'vanilla' });
+    addEntry({ ...data, mode: 'uncontrolled' });
     e.currentTarget.reset();
-    console.log('click submit', data, 'zustand', entries);
+    console.log('click submit', data);
   };
 
   useEffect(() => console.log(entries, 'zust'));

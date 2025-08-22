@@ -67,15 +67,22 @@ UIForm.Submit = function UIFormSubmit({
   );
 };
 
-UIForm.Reset = function UIFormSubmit({
+UIForm.Reset = function IUFormSubmit({
   className,
   children,
+  onClick,
 }: {
   className?: string;
   children?: React.ReactNode;
+  onClick?: () => void;
 }) {
   return (
-    <UIButton variant="destructive" className={cn('', className)} type="reset">
+    <UIButton
+      variant="destructive"
+      className={cn('', className)}
+      type="reset"
+      onClick={onClick}
+    >
       {children}
     </UIButton>
   );

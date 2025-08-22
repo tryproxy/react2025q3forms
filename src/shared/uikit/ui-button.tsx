@@ -27,15 +27,18 @@ export function UIButton({
       type={type}
       className={cn(
         'flex cursor-pointer items-center justify-center rounded-sm p-2 transition-colors',
+        'disabled: disabled:opacity-50',
         {
           default:
-            'bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs',
+            'bg-primary text-primary-foreground enabled:hover:bg-primary/90 shadow-xs',
           destructive:
-            'bg-destructive hover:bg-destructive/90 text-white shadow-xs',
-          outline:
-            'bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 border shadow-xs',
+            'bg-destructive enabled:hover:bg-destructive/90 text-white shadow-xs',
+          outline: cn(
+            'bg-background dark:bg-input/30 dark:border-input dark:hover:bg-input/50 border shadow-xs',
+            'hover:bg-accent hover:text-accent-foreground'
+          ),
           secondary:
-            'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs',
+            'bg-secondary text-secondary-foreground enabled:hover:bg-secondary/80 shadow-xs',
           ghost: 'bg-surface/40 hover:bg-surface/20',
           link: 'text-primary underline-offset-4 hover:underline',
         }[variant],
