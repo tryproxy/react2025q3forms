@@ -1,10 +1,12 @@
+import { SignupForm } from '@/features/auth/ui/SignupForm';
+import { SignupFormRHF } from '@/features/auth/ui/SignupFormRHF';
 import { cn } from '@/shared/lib/cn';
 import { UIButton } from '@/shared/uikit/ui-button';
 import { UIModal } from '@/shared/uikit/ui-modal';
 import { useState } from 'react';
 
 function App() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [openForm, setOpenForm] = useState<'rhf' | 'vanilla' | null>(null);
 
   return (
     <div
@@ -14,18 +16,23 @@ function App() {
       )}
     >
       <div id="modals"></div>
-      <UIModal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <UIModal.Header>HEADER</UIModal.Header>
-        <UIModal.Body>TEXT</UIModal.Body>
-        <UIModal.Footer>
-          <UIButton variant="secondary">Submit</UIButton>
-        </UIModal.Footer>
+      <UIModal isOpen={!!openForm} onClose={() => setOpenForm(null)}>
+        <UIModal.Header>
+          {openForm === 'rhf' ? 'React Hook Form' : 'Uncontrolled Form'}
+        </UIModal.Header>
+
+        <UIModal.Body>
+          {openForm === 'rhf' ? <SignupFormRHF /> : <SignupForm />}
+        </UIModal.Body>
+
+        <UIModal.Footer>lol</UIModal.Footer>
       </UIModal>
+
       <div className="flex gap-4">
-        <UIButton variant="default" onClick={() => setIsOpen(true)}>
+        <UIButton variant="secondary" onClick={() => setOpenForm('rhf')}>
           controlled
         </UIButton>
-        <UIButton variant="secondary" onClick={() => setIsOpen(true)}>
+        <UIButton variant="default" onClick={() => setOpenForm('vanilla')}>
           uncontrolled
         </UIButton>
       </div>

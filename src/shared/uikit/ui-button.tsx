@@ -1,11 +1,14 @@
 import { cn } from '../lib/cn';
 
 export function UIButton({
+  type = 'button',
   variant = 'default',
-  children,
+  disabled = false,
   className,
+  children,
   onClick,
 }: {
+  type?: 'button' | 'submit' | 'reset';
   variant?:
     | 'default'
     | 'secondary'
@@ -13,12 +16,15 @@ export function UIButton({
     | 'outline'
     | 'link'
     | 'ghost';
-  onClick?: () => void;
+  disabled?: boolean;
   className?: string;
   children?: React.ReactNode;
+  onClick?: () => void;
 }) {
   return (
     <button
+      disabled={disabled}
+      type={type}
       className={cn(
         'flex cursor-pointer items-center justify-center rounded-sm p-2 transition-colors',
         {
