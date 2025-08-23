@@ -5,13 +5,19 @@ export function UIForm({
   className,
   children,
   onSubmit,
+  onAction,
 }: {
   className?: string;
   children?: React.ReactNode;
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
+  onAction?: (form: FormData) => void;
 }) {
   return (
-    <form className={cn('flex flex-col gap-2', className)} onSubmit={onSubmit}>
+    <form
+      className={cn('flex flex-col gap-2', className)}
+      action={onAction}
+      onSubmit={onSubmit}
+    >
       {children}
     </form>
   );

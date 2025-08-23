@@ -1,18 +1,50 @@
 import { UIForm } from '@/shared/uikit/ui-form';
 import { UIInput } from '@/shared/uikit/ui-input';
 import { useEffect, useState } from 'react';
-import { signupSchema, type SignupData } from '../model/signup.schema';
+import { signupFormSchema, type SignupFormData } from '../model/signup.schema';
 import { useSignupStore } from '../model/use-signup-store';
+import { UISelect } from '@/shared/uikit/ui-select';
+import { treeifyError } from 'zod';
+import { convertToBase64 } from '@/features/lib/convert-to-base64';
 
-type Errors = Partial<Record<keyof SignupData, string>>;
+type Errors = Partial<Record<keyof SignupFormData, string>>;
+// type ErrorsOf<T> = {
+//   [K in keyof T]?: T[K] extends object ? ErrorsOf<T[K]> : string;
+// };
+// type LeafKeys<T> = {
+//   [K in keyof T]: T[K] extends object
+//     ? LeafKeys<T[K]> // recurse
+//     : K;
+// }[keyof T];
+
+// type Errors = {
+//   name?: string[];
+//   age?: string[];
+//   email?: string[];
+//   gender?: string[];
+//   password?: string[];
+//   confirmPassword?: string[];
+// };
 type FormState = {
   name: string;
   age: string;
+  email: string;
+  gender: 'male' | 'female' | 'other' | '';
+  password: string;
+  confirmPassword: string;
+  tos: boolean;
+  pfp: File | null;
 };
 
 const initialFormState: FormState = {
   name: '',
   age: '',
+  email: '',
+  gender: '',
+  password: '',
+  confirmPassword: '',
+  tos: false,
+  pfp: null,
 };
 
 export function SignupFormControlled() {
@@ -27,9 +59,22 @@ export function SignupFormControlled() {
     ...userFormData,
   };
 
-  const validate = (values: SignupData) => {
-    const { error } = signupSchema.safeParse(values);
-    if (error) return error.format();
+  const validate = (values: SignupFormData) => {
+    const { error } = signupFormSchema.safeParse(values);
+
+    if (error) {
+      const { properties } = treeifyError(error);
+      return {
+        name: properties?.name?.errors?.[0],
+        age: properties?.age?.errors?.[0],
+        email: properties?.email?.errors?.[0],
+        gender: properties?.gender?.errors?.[0],
+        password: properties?.password?.errors?.[0],
+        confirmPassword: properties?.confirmPassword?.errors?.[0],
+        pfp: properties?.pfp?.errors?.[0],
+      };
+    }
+
     return;
   };
 
@@ -38,47 +83,60 @@ export function SignupFormControlled() {
     setErrors(undefined);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const coersedFormData: SignupData = {
+    const coersedFormData: SignupFormData = {
       ...formData,
       age: formData.age === '' ? 0 : Number(formData.age),
+      gender: formData.gender as 'male' | 'female' | 'other',
+      pfp: formData.pfp,
     };
 
     const errors = validate(coersedFormData);
 
-    if (errors) return;
+    console.log(errors, 'errors controlled');
+    if (errors) {
+      setErrors(errors);
+      return;
+    }
 
-    addEntry({ ...coersedFormData, mode: 'controlled' });
+    let pfpBase64: null | string = null;
+    if (formData.pfp) {
+      pfpBase64 = await convertToBase64(formData.pfp);
+    }
+
+    addEntry({ ...coersedFormData, pfp: pfpBase64, mode: 'controlled' });
     reset();
     console.log('click submit', formData);
   };
 
-  const handleOnChangeField = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldName: keyof SignupData
+  const handleChangeField = (
+    { target }: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    fieldName: keyof SignupFormData
   ) => {
-    const rawValue = e.target.value;
+    let value: unknown = target.value;
 
-    setUserFormData((prev) => ({ ...prev, [fieldName]: rawValue }));
+    if (target instanceof HTMLInputElement && target.type === 'checkbox') {
+      value = Boolean(target.checked);
+    } else if (target instanceof HTMLInputElement && target.type === 'number') {
+      value = Number(target.value);
+    } else if (target instanceof HTMLInputElement && target.type === 'file') {
+      value = target.files?.[0];
+    }
 
-    const valueForValidation =
-      fieldName === 'age' && rawValue !== '' ? Number(rawValue) : rawValue;
+    setUserFormData((prev) => ({ ...prev, [fieldName]: value }));
 
-    const singleFieldSchema = signupSchema.shape[fieldName];
-    const result = singleFieldSchema.safeParse(valueForValidation);
-
+    const { error } = signupFormSchema.shape[fieldName].safeParse(value);
     setErrors((prev) => ({
       ...prev,
-      [fieldName]: result.error
-        ? result.error.issues.map((issue) => issue.message).join(', ')
+      [fieldName]: error
+        ? error.issues.map((issue) => issue.message).join(', ')
         : undefined,
     }));
   };
 
-  const hasErrors = errors && Object.values(errors).some((val) => !!val);
-
+  // const hasErrors = errors && Object.values(errors).some((val) => !!val);
   useEffect(() => {
     console.log('zust', entries);
   }, [entries]);
@@ -91,7 +149,7 @@ export function SignupFormControlled() {
           type="text"
           id="name"
           name="name"
-          onChange={(e) => handleOnChangeField(e, 'name')}
+          onChange={(e) => handleChangeField(e, 'name')}
         />
       </UIForm.Field>
 
@@ -101,11 +159,80 @@ export function SignupFormControlled() {
           type="number"
           id="age"
           name="age"
-          onChange={(e) => handleOnChangeField(e, 'age')}
+          onChange={(e) => handleChangeField(e, 'age')}
+        />
+      </UIForm.Field>
+      <UIForm.Field label="Email" name="email" error={errors?.email}>
+        <UIInput
+          value={formData.email}
+          type="email"
+          id="email"
+          name="email"
+          onChange={(e) => handleChangeField(e, 'email')}
         />
       </UIForm.Field>
 
-      <UIForm.Submit disabled={hasErrors}>Sign Up</UIForm.Submit>
+      <UIForm.Field label="Gender" name="gender" error={errors?.gender}>
+        <UISelect
+          value={formData.gender}
+          id="gender"
+          name="gender"
+          onChange={(e) => handleChangeField(e, 'gender')}
+        >
+          <UISelect.Option disabled value="">
+            Select Gender
+          </UISelect.Option>
+          <UISelect.Option value="female">Female</UISelect.Option>
+          <UISelect.Option value="male">Male</UISelect.Option>
+          <UISelect.Option value="other">Other</UISelect.Option>
+        </UISelect>
+      </UIForm.Field>
+
+      <UIForm.Field label="Password" name="password" error={errors?.password}>
+        <UIInput
+          value={formData.password}
+          type="password"
+          id="password"
+          name="password"
+          onChange={(e) => handleChangeField(e, 'password')}
+        />
+      </UIForm.Field>
+
+      <UIForm.Field
+        label="Confirm password"
+        name="confirmPassword"
+        error={errors?.confirmPassword}
+      >
+        <UIInput
+          value={formData.confirmPassword}
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          onChange={(e) => handleChangeField(e, 'confirmPassword')}
+        />
+      </UIForm.Field>
+
+      <UIForm.Field label="ToS" name="tos" error={errors?.tos}>
+        <UIInput
+          checked={formData.tos}
+          type="checkbox"
+          id="tos"
+          name="tos"
+          onChange={(e) => handleChangeField(e, 'tos')}
+        />
+      </UIForm.Field>
+
+      <UIForm.Field label="Profile picture" name="pfp" error={errors?.pfp}>
+        <UIInput
+          type="file"
+          id="pfp"
+          name="pfp"
+          accept=".jpg,.jpeg,.png"
+          onChange={(e) => handleChangeField(e, 'pfp')}
+        />
+      </UIForm.Field>
+
+      <UIForm.Submit>Sign Up</UIForm.Submit>
       <UIForm.Reset onClick={reset}>Reset</UIForm.Reset>
     </UIForm>
   );

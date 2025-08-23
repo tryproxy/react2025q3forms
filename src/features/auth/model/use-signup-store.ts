@@ -1,7 +1,10 @@
 import { create } from 'zustand';
-import type { SignupData } from './signup.schema';
+import type { SignupFormData } from './signup.schema';
 
-type Entry = SignupData & { mode: 'uncontrolled' | 'controlled' };
+type Entry = Omit<SignupFormData, 'pfp'> & {
+  mode: 'uncontrolled' | 'controlled';
+  pfp: string | null;
+};
 
 interface SignupState {
   entries: Entry[];
