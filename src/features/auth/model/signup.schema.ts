@@ -1,3 +1,4 @@
+import countriesData from '@/shared/data/countries.json';
 import z from 'zod';
 
 export const signupFormSchema = z
@@ -11,6 +12,10 @@ export const signupFormSchema = z
     gender: z.enum(['male', 'female', 'other'], {
       error: 'Please pick your gender',
     }),
+    country: z.enum(
+      countriesData.map((c) => c.code),
+      'Please select a country'
+    ),
     confirmPassword: z.string(),
     password: z
       .string()
@@ -31,7 +36,7 @@ export const signupFormSchema = z
     error: 'Passwords must match',
     path: ['confirmPassword'],
   })
-  .refine(({ pfp }) => pfp && pfp.size <= 1 * 1024 * 1024, {
+  .refine(({ pfp }) => pfp && pfp.size <= 2 * 1024 * 1024, {
     error: 'File size must be less than 2MB',
     path: ['pfp'],
   })

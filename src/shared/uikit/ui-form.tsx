@@ -39,15 +39,18 @@ UIForm.Field = function UIFormField({
   children?: React.ReactNode;
 }) {
   return (
-    <div className={cn('flex flex-col gap-2 py-2', className)}>
-      <div className="flex gap-2">
-        <label htmlFor={name} className="">
-          {label}
-        </label>
-        {children}
+    <div className={cn('gap-2 py-2', className)}>
+      <div className="grid grid-cols-[minmax(120px,200px)_1fr] items-start gap-2">
+        <label htmlFor={name}>{label}</label>
+
+        <div className="flex gap-2">
+          {children}
+          <span className="text-primary h-[1.25rem] text-sm">
+            {error ?? ''}
+          </span>
+          {hint && <span>{hint}</span>}
+        </div>
       </div>
-      {error && <span>{error}</span>}
-      {hint && <span>{hint}</span>}
     </div>
   );
 };

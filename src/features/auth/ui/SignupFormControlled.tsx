@@ -6,25 +6,10 @@ import { useSignupStore } from '../model/use-signup-store';
 import { UISelect } from '@/shared/uikit/ui-select';
 import { treeifyError } from 'zod';
 import { convertToBase64 } from '@/features/lib/convert-to-base64';
+import { CountryAutocomplete } from '@/entities/country/CountryAutocomplete';
 
 type Errors = Partial<Record<keyof SignupFormData, string>>;
-// type ErrorsOf<T> = {
-//   [K in keyof T]?: T[K] extends object ? ErrorsOf<T[K]> : string;
-// };
-// type LeafKeys<T> = {
-//   [K in keyof T]: T[K] extends object
-//     ? LeafKeys<T[K]> // recurse
-//     : K;
-// }[keyof T];
 
-// type Errors = {
-//   name?: string[];
-//   age?: string[];
-//   email?: string[];
-//   gender?: string[];
-//   password?: string[];
-//   confirmPassword?: string[];
-// };
 type FormState = {
   name: string;
   age: string;
@@ -34,6 +19,7 @@ type FormState = {
   confirmPassword: string;
   tos: boolean;
   pfp: File | null;
+  country: string;
 };
 
 const initialFormState: FormState = {
@@ -45,6 +31,7 @@ const initialFormState: FormState = {
   confirmPassword: '',
   tos: false,
   pfp: null,
+  country: '',
 };
 
 export function SignupFormControlled() {
@@ -72,6 +59,7 @@ export function SignupFormControlled() {
         password: properties?.password?.errors?.[0],
         confirmPassword: properties?.confirmPassword?.errors?.[0],
         pfp: properties?.pfp?.errors?.[0],
+        country: properties?.country?.errors?.[0],
       };
     }
 
@@ -91,6 +79,7 @@ export function SignupFormControlled() {
       age: formData.age === '' ? 0 : Number(formData.age),
       gender: formData.gender as 'male' | 'female' | 'other',
       pfp: formData.pfp,
+      country: formData.country,
     };
 
     const errors = validate(coersedFormData);
@@ -113,6 +102,7 @@ export function SignupFormControlled() {
 
   const handleChangeField = (
     { target }: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    // { target }: unknown,
     fieldName: keyof SignupFormData
   ) => {
     let value: unknown = target.value;
@@ -212,13 +202,17 @@ export function SignupFormControlled() {
         />
       </UIForm.Field>
 
-      <UIForm.Field label="ToS" name="tos" error={errors?.tos}>
-        <UIInput
-          checked={formData.tos}
-          type="checkbox"
-          id="tos"
-          name="tos"
-          onChange={(e) => handleChangeField(e, 'tos')}
+      <UIForm.Field
+        label="Choose your country"
+        name="country"
+        error={errors?.country}
+      >
+        <CountryAutocomplete
+          value={formData.country}
+          type="text"
+          id="country"
+          name="country"
+          onChange={(e) => handleChangeField(e, 'country')}
         />
       </UIForm.Field>
 
@@ -228,10 +222,21 @@ export function SignupFormControlled() {
           id="pfp"
           name="pfp"
           accept=".jpg,.jpeg,.png"
+          className="file:bg-accent file:text-accent-foreground w-55 cursor-pointer file:rounded file:px-2 file:py-1 file:text-sm"
           onChange={(e) => handleChangeField(e, 'pfp')}
         />
       </UIForm.Field>
 
+      <UIForm.Field label="Tearms of Service" name="tos" error={errors?.tos}>
+        <UIInput
+          checked={formData.tos}
+          type="checkbox"
+          id="tos"
+          name="tos"
+          className="accent-secondary h-5 w-5 cursor-pointer"
+          onChange={(e) => handleChangeField(e, 'tos')}
+        />
+      </UIForm.Field>
       <UIForm.Submit>Sign Up</UIForm.Submit>
       <UIForm.Reset onClick={reset}>Reset</UIForm.Reset>
     </UIForm>

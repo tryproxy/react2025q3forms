@@ -1,29 +1,16 @@
+import countriesData from '@/shared/data/countries.json';
 import { UIForm } from '@/shared/uikit/ui-form';
 import { UIInput } from '@/shared/uikit/ui-input';
 import { useEffect, useState } from 'react';
 import { signupFormSchema, type SignupFormData } from '../model/signup.schema';
 import { useSignupStore } from '../model/use-signup-store';
 import { UISelect } from '@/shared/uikit/ui-select';
-import { treeifyError } from 'node_modules/zod/v4/core/errors';
 import { convertToBase64 } from '@/features/lib/convert-to-base64';
+import { treeifyError } from 'zod';
 
-// type ErrorsOf<T> = {
-//   [K in keyof T]?: T[K] extends object ? ErrorsOf<T[K]> : string;
-// };
 type Errors = Partial<Record<keyof SignupFormData, string>>;
-// type Errors = ErrorsOf<SignupData>;
-// type Errors = {
-//   name?: string[];
-//   age?: string[];
-//   email?: string[];
-//   gender?: string[];
-//   auth?: {
-//     password?: string[];
-//     confirmPassword?: string[];
-//   };
-// };
 
-export function SignupFofmUncontrolled() {
+export function SignupFormUncontrolled() {
   const [errors, setErrors] = useState<Errors>({});
   const addEntry = useSignupStore((state) => state.addEntry);
   const entries = useSignupStore((state) => state.entries);
@@ -43,6 +30,7 @@ export function SignupFofmUncontrolled() {
       confirmPassword: form.get('confirmPassword') ?? '',
       tos: form.get('tos') === 'on',
       pfp: form.get('pfp') ?? '',
+      country: form.get('country') ?? '',
     });
 
     if (error) {
@@ -56,6 +44,7 @@ export function SignupFofmUncontrolled() {
         confirmPassword: properties?.confirmPassword?.errors?.[0],
         tos: properties?.tos?.errors?.[0],
         pfp: properties?.pfp?.errors?.[0],
+        country: properties?.country?.errors?.[0],
       };
       console.log(errors, 'errors?');
       setErrors(errors);
@@ -113,14 +102,41 @@ export function SignupFofmUncontrolled() {
         <UIInput type="password" id="confirmPassword" name="confirmPassword" />
       </UIForm.Field>
 
-      <UIForm.Field label="ToS" name="tos" error={errors.tos}>
-        <UIInput type="checkbox" id="tos" name="tos" />
+      <UIForm.Field
+        label="Choose your country"
+        name="country"
+        error={errors.country}
+      >
+        <UISelect id="country" name="country" defaultValue="" className="w-54">
+          <UISelect.Option disabled value="">
+            Select a country
+          </UISelect.Option>
+          {countriesData.map(({ code, name }) => (
+            <UISelect.Option key={code} value={code}>
+              {name}
+            </UISelect.Option>
+          ))}
+        </UISelect>
       </UIForm.Field>
 
       <UIForm.Field label="Profile picture" name="pfp" error={errors.pfp}>
-        <UIInput type="file" id="pfp" name="pfp" accept=".jpg,.jpeg,.png" />
+        <UIInput
+          type="file"
+          id="pfp"
+          name="pfp"
+          accept=".jpg,.jpeg,.png"
+          className="file:bg-accent file:text-accent-foreground w-55 cursor-pointer file:rounded file:px-2 file:py-1 file:text-sm"
+        />
       </UIForm.Field>
 
+      <UIForm.Field label="Tearms of Service" name="tos" error={errors.tos}>
+        <UIInput
+          type="checkbox"
+          id="tos"
+          name="tos"
+          className="accent-secondary h-5 w-5 cursor-pointer"
+        />
+      </UIForm.Field>
       <UIForm.Submit>Sign Up</UIForm.Submit>
       <UIForm.Reset>Reset</UIForm.Reset>
     </UIForm>
