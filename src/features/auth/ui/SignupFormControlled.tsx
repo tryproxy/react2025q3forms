@@ -34,7 +34,11 @@ const initialFormState: FormState = {
   country: '',
 };
 
-export function SignupFormControlled() {
+export function SignupFormControlled({
+  onSuccess,
+}: {
+  onSuccess?: () => void;
+}) {
   const [errors, setErrors] = useState<Errors | undefined>(undefined);
   const [userFormData, setUserFormData] =
     useState<Partial<FormState>>(initialFormState);
@@ -98,11 +102,11 @@ export function SignupFormControlled() {
     addEntry({ ...coersedFormData, pfp: pfpBase64, mode: 'controlled' });
     reset();
     console.log('click submit', formData);
+    onSuccess?.();
   };
 
   const handleChangeField = (
     { target }: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-    // { target }: unknown,
     fieldName: keyof SignupFormData
   ) => {
     let value: unknown = target.value;
@@ -126,7 +130,6 @@ export function SignupFormControlled() {
     }));
   };
 
-  // const hasErrors = errors && Object.values(errors).some((val) => !!val);
   useEffect(() => {
     console.log('zust', entries);
   }, [entries]);

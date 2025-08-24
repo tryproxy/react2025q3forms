@@ -10,7 +10,11 @@ import { treeifyError } from 'zod';
 
 type Errors = Partial<Record<keyof SignupFormData, string>>;
 
-export function SignupFormUncontrolled() {
+export function SignupFormUncontrolled({
+  onSuccess,
+}: {
+  onSuccess?: () => void;
+}) {
   const [errors, setErrors] = useState<Errors>({});
   const addEntry = useSignupStore((state) => state.addEntry);
   const entries = useSignupStore((state) => state.entries);
@@ -61,8 +65,9 @@ export function SignupFormUncontrolled() {
       pfp: pfpBase64,
       mode: 'uncontrolled',
     });
-    e.currentTarget.reset();
     console.log('click submit', data);
+    onSuccess?.();
+    e.currentTarget.reset();
   };
 
   useEffect(() => console.log(entries, 'zust'));
