@@ -3,7 +3,7 @@ import { scan } from 'react-scan';
 scan({
   enabled: true,
   trackUnnecessaryRenders: true,
-  log: true,
+  log: false,
   showToolbar: true,
   dangerouslyForceRunInProduction: true,
 });

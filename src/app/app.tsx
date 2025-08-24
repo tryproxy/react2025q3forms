@@ -1,4 +1,4 @@
-import { SignupFofmUncontrolled } from '@/features/auth/ui/SignupFormUncontrolled';
+import { SignupFormUncontrolled } from '@/features/auth/ui/SignupFormUncontrolled';
 import { SignupFormControlled } from '@/features/auth/ui/SignupFormControlled';
 import { cn } from '@/shared/lib/cn';
 import { UIButton } from '@/shared/uikit/ui-button';
@@ -13,6 +13,7 @@ function App() {
   return (
     <div
       data-theme="dark"
+      // data-theme="light"
       className={cn(
         'bg-background text-surface-foreground flex h-screen flex-col items-center justify-center'
       )}
@@ -27,7 +28,7 @@ function App() {
           {openForm === 'controlled' ? (
             <SignupFormControlled />
           ) : (
-            <SignupFofmUncontrolled />
+            <SignupFormUncontrolled />
           )}
         </UIModal.Body>
 
