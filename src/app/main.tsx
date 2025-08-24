@@ -1,17 +1,18 @@
-import { scan } from 'react-scan';
+if (import.meta.env.DEV) {
+  const { scan } = await import('react-scan');
+  scan({
+    enabled: true,
+    trackUnnecessaryRenders: true,
+    log: false,
+    showToolbar: true,
+  });
+}
 
-scan({
-  enabled: true,
-  trackUnnecessaryRenders: true,
-  log: false,
-  showToolbar: true,
-  dangerouslyForceRunInProduction: true,
-});
+import { ThemeProvider } from '@/shared/model/context/ThemeProvider';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import './index.css';
 import App from './app';
-import { ThemeProvider } from '@/shared/model/context/ThemeProvider';
+import './index.css';
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
