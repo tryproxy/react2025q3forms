@@ -40,31 +40,33 @@ function App() {
             Uncontrolled Form
           </UIButton>
         </div>
-        <div className="flex flex-col items-center">
-          <ul className="flex w-full max-w-xl flex-col gap-4">
+        <div className="flex items-center">
+          <ul className="grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {entries.map(
               ({ name, age, country, email, gender, pfp, mode }, idx) => {
                 const countryName = getCountry(country);
                 const parsedCountry = countryName ? countryName.name : '';
                 return (
                   <li key={idx} className="flex items-start gap-3">
-                    <div className="border-border bg-surface flex items-center gap-2 rounded border p-2">
+                    <div className="bg-surface border-border flex w-full items-center gap-4 rounded-xl border p-4 shadow-md">
                       <img
                         src={pfp ?? ''}
                         alt={name}
-                        className="h-22 w-22 rounded-full object-cover object-center"
+                        className="aspect-square h-20 w-20 rounded-full object-cover object-center"
                       />
                       <div
                         className={cn(
-                          'text-secondary-foreground rounded-2xl px-4 py-2 text-sm shadow-lg',
-                          `${mode === 'uncontrolled' ? 'bg-primary' : 'bg-secondary'}`
+                          'flex-1 overflow-hidden rounded-2xl px-4 py-2 text-sm shadow-lg',
+                          `${mode === 'uncontrolled' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`
                         )}
                       >
-                        <h2>Name: {name}</h2>
+                        <h2 className="text-base font-semibold">
+                          Name: {name}
+                        </h2>
                         <p>Age: {age}</p>
                         <p>Gender: {gender}</p>
                         <p>From: {parsedCountry}</p>
-                        <p>Contact: {email}</p>
+                        <p className="truncate">Contact: {email}</p>
                       </div>
                     </div>
                   </li>
